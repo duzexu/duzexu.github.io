@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>关于 | 肚肚的小窝</title>
+<title>iOS中录制和截取Unity屏幕 | 肚肚的小窝</title>
 <meta name="description" content="Talk is cheap, Show me the code.">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -111,20 +111,89 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">关于</h2>
-            <div class="post-date">2019-01-25</div>
+            <h2 class="post-title">iOS中录制和截取Unity屏幕</h2>
+            <div class="post-date">2020-08-14</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Record_Screen_In_Unity.jpg')">
+              </div>
             
             <div class="post-content">
-              <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
-</blockquote>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
+              <p>本文介绍如何在集成Unity的iOS原生项目中截取和录制屏幕</p>
+<!-- more -->
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
+<p>由于Unity不熟练，不知道怎么直接在Unity里录制屏幕。查询网上的方法，基本都是采用Unity的插件录制，不过基本都是收费插件，所以我们采用曲线救国，自己制作录制脚本。</p>
+<p>思路是首先在Unity里获取当前屏幕截图，传给native,原生使用GPUImage进行视频的合成</p>
+<h3 id="1-准备工作">1. 准备工作</h3>
+<p>新建一个Unity和原生混合的工程（参考之前的<a href="https://github.com/duzexu/Use-Unity-as-Library.git">文章</a>），在主场景中放置一个白色的球，方便我们录制时验证</p>
+<h3 id="2-unity端">2. Unity端</h3>
+<ul>
+<li>获取AR摄像头采集的原始数据</li>
+</ul>
+<p>使用<code>ARCameraManager</code>的<code>TryGetLatestImage</code>方法获取<code>XRCameraImage</code>对象，再用<code>XRCameraImageConversionParams</code>把数据转成需要的格式</p>
+<pre><code>cameraManager.TryGetLatestImage(out XRCameraImage image)
+
+renderTexture = new Texture2D(image.width, image.height, TextureFormat.BGRA32, false);
+conversionParams = new XRCameraImageConversionParams(image, TextureFormat.BGRA32, CameraImageTransformation.None);
+intPtr = new IntPtr(renderTexture.GetRawTextureData&lt;byte&gt;().GetUnsafePtr());
+
+var rawTextureData = renderTexture.GetRawTextureData&lt;byte&gt;();
+try
+{
+    image.Convert(conversionParams, intPtr, rawTextureData.Length);
+}
+finally
+{
+    image.Dispose();
+}
+
+renderTexture.Apply();
+
+NativeAPI.SendVideoData(renderTexture.GetRawTextureData(), rawTextureData.Length);
+</code></pre>
+<ul>
+<li>获取屏幕渲染结果</li>
+</ul>
+<p>使用<code>Texture2D</code>的<code>ReadPixels</code>获取屏幕渲染结果</p>
+<pre><code>renderTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+renderTexture.Apply();
+
+byte[] rawData = renderTexture.GetRawTextureData();
+NativeAPI.SendVideoData(rawData, rawData.Length);
+</code></pre>
+<h3 id="3-native端">3. Native端</h3>
+<p>使用<code>GPUImageRawDataInput</code>作为输入，<code>GPUImageMovieWriter</code>作为输出<br>
+摄像头数据是旋转的，添加<code>GPUImageTransformFilter</code>旋转回来<br>
+如果不是录制全屏，添加<code>GPUImageCropFilter</code>截取屏幕的某一部分</p>
+<p><strong><code>注意:</code></strong> 初始化GPUImageMovieWriter注意宽高需要是16的倍数，否则会有黑边</p>
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
 
             </div>
             
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/KRt25-0uKZ/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/DWik8GwAS/" class="tag">
+                    Unity
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/RVnblPRY4b/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Add_Filter_To_ARKit/">
+                  <h3 class="post-title">
+                    奇技淫巧给AR背景添加滤镜
+                  </h3>
+                </a>
+              </div>
             
 
             
