@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Mac搭建STM32环境（基于Apple silicon） | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Mac搭建STM32环境（基于Apple silicon）</h2>
+            <div class="post-date">2022-10-17</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/stm32-in-mac.JPG')">
+              </div>
+            
+            <div class="post-content">
+              <p>介绍如何在Mac上搭建STM32环境进行嵌入式开发</p>
+<!-- more -->
+<h1 id="基本工具">基本工具</h1>
+<h2 id="clion安装">Clion安装</h2>
+<p>使用Homebrew安装</p>
+<pre><code>brew install clion
+</code></pre>
+<p>或者<a href="https://www.jetbrains.com/zh-cn/clion/">官网下载</a></p>
+<p>下载2022.1.13版本，下载破解包进行破解</p>
+<h2 id="stm32cubemx安装">STM32Cubemx安装</h2>
+<p>安装运行STM32Cubemx需要java环境<a href="https://www.java.com/zh-CN/">下载地址</a></p>
+<p><a href="https://www.st.com/en/development-tools/stm32cubemx.html#get-software">官网下载地址</a>，该软件基于x86架构，在Apple silicon上运行需要rosetta2，若你的电脑没有安装，可以在终端输入<code>softwareupdate --install-rosetta</code>命令完成安装</p>
+<p>下载好后解压，右键SetupSTM32CubeMX-6.5.0选择显示包内容，双击Contents/MacOs/SetupSTM32CubeMX-6_5_0即可进入安装界面，点击继续安装即可<br>
+<img src="https://duzexu.github.io/post-images/1665995036880.jpg" alt="" loading="lazy"><br>
+若显示无法打开，在系统偏好设置的安全性与隐私中允许打开该文件。</p>
+<h2 id="openocd">openocd</h2>
+<p>Apple silicon下载<a href="https://github.com/xpack-dev-tools/openocd-xpack/releases">该版本</a>，如图所示下载第一个。解压后储存在固定位置，我放在了/Library/xpack-openocd-0.11.0-3<br>
+<img src="https://duzexu.github.io/post-images/1665995138130.webp" alt="" loading="lazy"></p>
+<p>基于Intel的Mac可以直接通过homebrew安装</p>
+<pre><code>brew install openocd
+</code></pre>
+<p>在终端输入<code>which openocd</code>查看命令可以查看安装位置</p>
+<h2 id="xcode">xcode</h2>
+<p>app store 搜索Xcode即可安装</p>
+<h2 id="arm-gcc工具链">ARM-GCC工具链</h2>
+<p>使用Homebrew安装</p>
+<pre><code>brew tap ArmMbed/homebrew-formulae
+brew install arm-none-eabi-gcc
+</code></pre>
+<p>安装后输入<code>arm-none-eabi-gcc -v</code>查看版本信息，有信息则安装成功</p>
+<h2 id="环境配置">环境配置</h2>
+<p>打开Clion，commend+,进入偏好设置</p>
+<p>选择嵌入式开发，将软件路径输入，点击测试可以查看是否能够工作</p>
+<p><img src="https://duzexu.github.io/post-images/1665995285616.webp" alt="" loading="lazy"><br>
+插件安装<br>
+<img src="https://duzexu.github.io/post-images/1665995290414.webp" alt="" loading="lazy"></p>
+<p>参考<a href="https://zhuanlan.zhihu.com/p/145801160">配置CLion用于STM32开发【优雅の嵌入式开发】</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/OY-ELE6c2/" class="tag">
+                    嵌入式
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Record_Screen_In_Unity_For_Andriod/">
+                  <h3 class="post-title">
+                    Android中录制和截取Unity屏幕
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

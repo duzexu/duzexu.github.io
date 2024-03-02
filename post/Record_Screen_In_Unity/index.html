@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iOS中录制和截取Unity屏幕 | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">iOS中录制和截取Unity屏幕</h2>
+            <div class="post-date">2020-08-14</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Record_Screen_In_Unity.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>本文介绍如何在集成Unity的iOS原生项目中截取和录制屏幕</p>
+<!-- more -->
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
+<p>由于Unity不熟练，不知道怎么直接在Unity里录制屏幕。查询网上的方法，基本都是采用Unity的插件录制，不过基本都是收费插件，所以我们采用曲线救国，自己制作录制脚本。</p>
+<p>思路是首先在Unity里获取当前屏幕截图，传给native,原生使用GPUImage进行视频的合成</p>
+<h3 id="1-准备工作">1. 准备工作</h3>
+<p>新建一个Unity和原生混合的工程（参考之前的<a href="https://github.com/duzexu/Use-Unity-as-Library.git">文章</a>），在主场景中放置一个白色的球，方便我们录制时验证</p>
+<h3 id="2-unity端">2. Unity端</h3>
+<ul>
+<li>获取AR摄像头采集的原始数据</li>
+</ul>
+<p>使用<code>ARCameraManager</code>的<code>TryGetLatestImage</code>方法获取<code>XRCameraImage</code>对象，再用<code>XRCameraImageConversionParams</code>把数据转成需要的格式</p>
+<pre><code>cameraManager.TryGetLatestImage(out XRCameraImage image)
+
+renderTexture = new Texture2D(image.width, image.height, TextureFormat.BGRA32, false);
+conversionParams = new XRCameraImageConversionParams(image, TextureFormat.BGRA32, CameraImageTransformation.None);
+intPtr = new IntPtr(renderTexture.GetRawTextureData&lt;byte&gt;().GetUnsafePtr());
+
+var rawTextureData = renderTexture.GetRawTextureData&lt;byte&gt;();
+try
+{
+    image.Convert(conversionParams, intPtr, rawTextureData.Length);
+}
+finally
+{
+    image.Dispose();
+}
+
+renderTexture.Apply();
+
+NativeAPI.SendVideoData(renderTexture.GetRawTextureData(), rawTextureData.Length);
+</code></pre>
+<ul>
+<li>获取屏幕渲染结果</li>
+</ul>
+<p>使用<code>Texture2D</code>的<code>ReadPixels</code>获取屏幕渲染结果</p>
+<pre><code>renderTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+renderTexture.Apply();
+
+byte[] rawData = renderTexture.GetRawTextureData();
+NativeAPI.SendVideoData(rawData, rawData.Length);
+</code></pre>
+<h3 id="3-native端">3. Native端</h3>
+<p>使用<code>GPUImageRawDataInput</code>作为输入，<code>GPUImageMovieWriter</code>作为输出<br>
+摄像头数据是旋转的，添加<code>GPUImageTransformFilter</code>旋转回来<br>
+如果不是录制全屏，添加<code>GPUImageCropFilter</code>截取屏幕的某一部分</p>
+<p><strong><code>注意:</code></strong> 初始化GPUImageMovieWriter注意宽高需要是16的倍数，否则会有黑边</p>
+<h3 id="4-音频录制">4. 音频录制</h3>
+<p>通过<code>OnAudioFilterRead(float[] data, int channels)</code>采集unity的声音传给Native端，在Native端将音频数据转为<code>CMSampleBuffer</code>塞入GPUImage</p>
+<p>Unity设置的音频采样率要和Native端统一</p>
+<pre><code>AudioSettings.outputSampleRate = 44100;
+</code></pre>
+<p><strong><code>注意:</code></strong> <code>OnAudioFilterRead</code>方法只有在添加了<code>AudioSource</code>组件后才会回调，并且AudioSource的<code>playOnAwake</code>需要为<code>false</code></p>
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/KRt25-0uKZ/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/DWik8GwAS/" class="tag">
+                    Unity
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/RVnblPRY4b/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Add_Filter_To_ARKit/">
+                  <h3 class="post-title">
+                    奇技淫巧给AR背景添加滤镜
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

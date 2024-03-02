@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>将Unity以库形式集成到原生iOS | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">将Unity以库形式集成到原生iOS</h2>
+            <div class="post-date">2020-05-20</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Use_Unity_as_Library.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>Unity 2019.3及之后的版本将添加支持，可以将Unity作为原生Android和iOS应用控制的库，以便轻松加入AR和其它Unity功能。</p>
+<p>这意味着开发者可以将Unity所能实现的增强现实AR、3D/2D实时渲染、2D迷你游戏等功能，直接添加到自己的原生移动应用。</p>
+<!-- more -->
+<p>直接上代码 <a href="https://github.com/duzexu/Use-Unity-as-Library.git">Use Unity as Library</a></p>
+<h2 id="限制">限制</h2>
+<ul>
+<li>作为库使用的Unity仅支持全屏渲染，不支持在屏幕的一部分进行渲染。</li>
+<li>不支持加载多个Unity运行时实例。</li>
+<li>开发者需要调整第三方插件，包括原生插件和托管插件，从而让它们正常工作。</li>
+</ul>
+<h2 id="集成要求">集成要求</h2>
+<ul>
+<li>Xcode 9.4以上版本</li>
+<li>Unity 2019.3.a2以上版本</li>
+</ul>
+<h2 id="集成步骤">集成步骤</h2>
+<h4 id="1下载示例工程">1.下载示例工程</h4>
+<ul>
+<li>克隆或下载 <a href="https://github.com/Unity-Technologies/uaal-example">Demo</a> 这包含<br>
+<img src="https://duzexu.github.io/post-images/1589971003144.png" alt="" loading="lazy">
+<ul>
+<li>UnityProject-这是Unity示例工程，其中包含了几个简单的交互，我们要将他集成进原生工程。Assets/Plugins/iOS 中的文件，用于Unity与原生应用进行通信</li>
+<li>NativeiOSApp-这是简单的iOS原生应用，我们要在其中集成Unity项目。使用UnityFrameworkLoad()加载Unity引擎</li>
+</ul>
+</li>
+</ul>
+<h4 id="2导出unity为xcode项目">2.导出Unity为Xcode项目</h4>
+<p>无需特别设置，正常生成Xcode项目</p>
+<ul>
+<li>从Unity编辑器中打开UnityProject</li>
+<li>删除或更新广告软件包至v3.*（2.0.8版本与作为库的Unity不兼容）（Menu/Window/Package Manager）</li>
+<li>选择并切换到平台iOS（Menu/File/Builds Settings）</li>
+<li>点击Build，选择导出文件夹UnityProject/Build,点击构建</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://duzexu.github.io/post-images/1589972003675.png" alt="" loading="lazy"></figure>
+<h4 id="3设置xcode-workspace">3.设置Xcode workspace</h4>
+<p>使用Xcode workspace将原生项目和导出的项目集成到一起</p>
+<ul>
+<li>新建Untitled.workspace保存到根目录下 （File/New/Workspace）</li>
+<li>点击左下角的加号添加NativeiOSApp.xcodeproj和第二步生成的Unity-iPhone.xcodeproj（File / Add Files to &quot;Untitled&quot;）<br>
+<img src="https://duzexu.github.io/post-images/1590041804021.png" alt="" loading="lazy"></li>
+</ul>
+<h4 id="4添加unityframeworkframework">4.添加UnityFramework.framework</h4>
+<p>这个步骤把Unity的工程已framework的形式集成进NativeiOSApp，不需要改变NativeiOSApp的结构</p>
+<ul>
+<li>在NativeiOSApp中选择NativeiOSApp target</li>
+<li>在Build Phases/ Embedded Binaries栏目中点击+</li>
+<li>选择Unity-iPhone/Products/UnityFramework.framework</li>
+<li>在Build Phases/Linked Frameworks and Libraries中移除UnityFramework.framework<br>
+<img src="https://duzexu.github.io/post-images/1590042730744.png" alt="" loading="lazy"></li>
+</ul>
+<h4 id="5暴露nativecallproxyh">5.暴露NativeCallProxy.h</h4>
+<p>这个文件是Unity和原生项目接口的定义</p>
+<ul>
+<li>选择Unity-iPhone / Libraries / Plugins / iOS / NativeCallProxy.h</li>
+<li>在Inspector/Target Membership中选择UnityFramework并设置为Public<br>
+<img src="https://duzexu.github.io/post-images/1590043415570.png" alt="" loading="lazy"></li>
+</ul>
+<h4 id="6暴露data文件夹">6.暴露Data文件夹</h4>
+<p>默认Data文件是属于Unity-iPhone target，我们要将他暴露给framework</p>
+<ul>
+<li>选择Unity-iPhone/Data文件夹</li>
+<li>在Inspector/Target Membership中选择UnityFramework<br>
+<img src="https://duzexu.github.io/post-images/1590044436630.png" alt="" loading="lazy"></li>
+</ul>
+<p>如果顺利，现在就可以成功的运行NativeiOSApp了</p>
+<h2 id="swift集成">Swift集成</h2>
+<p>原生Swift集成过程跟OC的一样，只不过NativeCallProxy的实现需要桥接文件。在桥接文件中引入</p>
+<pre><code>#import &lt;UnityFramework/NativeCallProxy.h&gt;
+</code></pre>
+<p>我新建了一个UnitySwiftMix.workspace Demo演示如何在Swift中集成，并封装了Unity Framework的接口，同时这个工程也集成了Pod</p>
+<p>详情请点击 <a href="https://github.com/duzexu/Use-Unity-as-Library.git">Use Unity as Library</a></p>
+<h2 id="参考">参考</h2>
+<p><a href="https://connect.unity.com/p/zai-yuan-sheng-ioshuo-androidying-yong-zhong-jiang-unityzuo-wei-ku-shi-yong">在原生iOS或Android应用中将Unity作为库使用</a></p>
+<p><a href="https://forum.unity.com/threads/integration-unity-as-a-library-in-native-ios-app.685219/">Integration Unity as a library in native iOS app</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/DWik8GwAS/" class="tag">
+                    Unity
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/RVnblPRY4b/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/hello-gridea/">
+                  <h3 class="post-title">
+                    Hello Gridea
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

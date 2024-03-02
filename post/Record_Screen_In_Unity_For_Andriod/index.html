@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Android中录制和截取Unity屏幕 | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Android中录制和截取Unity屏幕</h2>
+            <div class="post-date">2022-04-02</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Record_Screen_In_Unity_For_Andriod.png')">
+              </div>
+            
+            <div class="post-content">
+              <p>这篇是之前<a href="https://duzexu.github.io/post/Record_Screen_In_Unity/">iOS中录制和截取Unity屏幕</a>的扩展，介绍如何在集成Unity的Android原生项目中截取和录制屏幕和声音</p>
+<!-- more -->
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
+<p>主要思路还是跟iOS一样，在Unity里获取当前屏幕截图，传给native,原生使用MediaCodec进行视频的合成</p>
+<h3 id="1-准备工作">1. 准备工作</h3>
+<p>我们还是使用之前的Unity项目，Unity端的采集方法不变，在<code>NativeInterface.cs</code>中添加安卓的接口。参考<a href="https://github.com/duzexu/Use-Unity-as-Library/blob/master/docs/android.md">Integrating Unity as a library into standard Android app</a>将Unity项目导出到AndroidBuild文件夹下并集成到原生工程中</p>
+<blockquote>
+<p>导出时模式选择<code>IL2CPP</code>模式时需要在<code>gradle.properties</code>文件中添加<em>unityStreamingAssets=.unity3d</em><br>
+<img src="https://duzexu.github.io/post-images/1648894470716.png" alt="" loading="lazy"></p>
+</blockquote>
+<blockquote>
+<p>修改unityLibrary的<code>build.gradle</code>文件，添加<code>implementation 'androidx.appcompat:appcompat:1.1.0'</code><br>
+<img src="https://duzexu.github.io/post-images/1649214579099.png" alt="" loading="lazy"></p>
+</blockquote>
+<blockquote>
+<p>将<code>UnityPlayerActivity</code>的父类由<code>Activity</code>修改为<code>AppCompatActivity</code><br>
+<img src="https://duzexu.github.io/post-images/1649214711771.png" alt="" loading="lazy"></p>
+</blockquote>
+<h3 id="2视频帧和音频的传输">2.视频帧和音频的传输</h3>
+<p>按照iOS的思路，安卓采用常规的<code>AndroidJavaClass.Call</code>的方式给原生传输视频帧，经过测试发现这种方式非常卡，出来的视频帧率还不到15，经过调研，采取c库中转的方式传输。使用CMake建立<code>RecordSDK</code>库，其中维护一个<code>TPCircularBuffer</code>，缓存最多三帧数据，Unity通过<code>copyVideoBuffer2Cyc</code>将数据传输给<code>TPCircularBuffer</code>缓存，安卓端通过一个循环询问是否有数据，如果有则通过<code>consumeVideoBuffer</code>获取，编码后通过<code>recycleVideoBuffer</code>释放这一帧数据，好接受新的视频帧。音频数据也是同样的原理。</p>
+<h3 id="3-native端">3. Native端</h3>
+<p>由于Unity采集的数据为<code>BGRA32</code>格式并且是垂直镜像的，将<code>KEY_COLOR_FORMAT</code>设置为<code>COLOR_Format32bitBGRA8888</code>后发现手机不支持这个颜色格式导致编码不成功，只能在c库接收数据时通过<code>libyuv</code>转成<code>nv21</code>格式，还要根据手机支持的颜色格式转成对应的yuv格式和镜像旋转。</p>
+<pre><code class="language-java">//input为Camera预览格式NV21数据
+if (mColorFormat == MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar) {
+    //nv21格式转为nv12格式
+    Nv21ToNv12(input, yuvBuffer, mWidth, mHeight);
+} else if (mColorFormat == MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar) {
+    //用于NV21格式转换为I420(YUV420P)格式
+    Nv21ToI420(input, yuvBuffer, mWidth, mHeight);
+} else if (mColorFormat == MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar) {
+    System.arraycopy(input, 0, yuvBuffer, 0, mWidth * mHeight * 3 / 2);
+}else if (mColorFormat == MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar) {
+    //用于NV21格式转换为YV12格式
+    Nv21ToYv12(input, yuvBuffer, mWidth, mHeight);
+}
+MirrorYuv(yuvBuffer,mWidth,mHeight);
+</code></pre>
+<h3 id="4-音频录制">4. 音频录制</h3>
+<p>音频采集和iOS端是一样的，不过经过测试，使用Unity原生的<code>VideoPlayer</code>在录制时视频播放声音会产生卡顿，并且在安卓端<code>VideoPlayer</code>的兼容性也不好，经常会因为视频有坏帧导视卡住，所以替换成了第三方的<code>AVPro Video</code>。</p>
+<p>添加<code>MediaPlayer</code>组件进行播放，并且添加<code>AudioOutput</code>把声音通过<code>AudioSource</code>传输，这样我们就可以通过<code>OnAudioFilterRead(float[] data, int channels)</code>采集声音传给Native端，需要注意的是VideoApi需要选为<code>Exo Player</code>并且<code>Audio Output</code>为Unity<br>
+<img src="https://duzexu.github.io/post-images/1648897605643.png" alt="" loading="lazy"></p>
+<h3 id="参考">参考</h3>
+<p><a href="https://github.com/duzexu/Use-Unity-as-Library/blob/master/docs/android.md">Integrating Unity as a library into standard Android app</a></p>
+<p><a href="https://www.renderheads.com/content/docs/AVProVideo/articles/intro.html">AVPro Video Documentation</a></p>
+<p>完整代码请查看<a href="https://github.com/duzexu/Record_Screen_In_Unity.git">Record_Screen_In_Unity</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/Fur1sbcRp/" class="tag">
+                    Andriod
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/DWik8GwAS/" class="tag">
+                    Unity
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Auto-Jump-In-WeChat-Jump/">
+                  <h3 class="post-title">
+                    在iPhone上开发微信自动跳一跳插件
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

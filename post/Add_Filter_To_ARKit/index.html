@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>奇技淫巧给AR背景添加滤镜 | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">奇技淫巧给AR背景添加滤镜</h2>
+            <div class="post-date">2020-07-23</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Add_Filter_To_ARKit.png')">
+              </div>
+            
+            <div class="post-content">
+              <p>ARKit是苹果在2017年推出的AR开发平台，开发人员可以使用这套工具iPhone和iPad创建增强现实应用程序。</p>
+<p>本文以ARKit提供的<code>ARSCNView</code>为例实现给AR背景添加滤镜。</p>
+<!-- more -->
+<p>先放代码 <a href="https://github.com/duzexu/Add-Filter-To-ARKit.git">Add Filter To ARKit</a></p>
+<p>平常开发主要使用ARKit中的<code>ARSCNView</code>，或者使用iOS13新推出的<code>RealityKit</code>，当然也可以使用Metal或者OpenGL自己渲染。如果是自己渲染，整个的渲染过程都是自己控制的，可以方便的添加滤镜，但是需要繁琐的渲染代码和3D数学知识。使用系统提供的控件，好处是我们不需要关注渲染的过程和控制摄像机的运动，只需要关注业务逻辑，但是系统并没有给我们暴露自定义渲染的方法。</p>
+<h3 id="思路">思路</h3>
+<p>我们知道<code>ARSession</code>这个类是ARKit的核心，他负责摄像头数据的采集，分析，和处理，从硬件中读取手机姿态等信息，综合所有结果，在你的现实世界和创建的虚拟世界之间创建一个对应的关系，从而构建出一个AR世界。</p>
+<p>我们从<code>ARSession</code>入手查找发现<code>ARSessionDelegate</code>有一个方法</p>
+<pre><code>/**
+ This is called when a new frame has been updated.
+ 
+ @param session The session being run.
+ @param frame The frame that has been updated.
+ */
+optional func session(_ session: ARSession, didUpdate frame: ARFrame)
+</code></pre>
+<p>这个方法会在每次有新<code>ARFrame</code>都会回调，查看<code>ARFrame</code>的<code>capturedImage</code>是记录每次摄像机采集的画面，那我们猜测每次<code>ARSession</code>处理完会传给<code>ARSCNView</code>，<code>ARSCNView</code>获取<code>ARFrame</code>的<code>capturedImage</code>来渲染，如果可以在系统获取<code>capturedImage</code>之前修改为添加滤镜后的数据，那系统就会渲染添加滤镜后的结果。</p>
+<h3 id="验证">验证</h3>
+<p>我们新建<code>ARSession</code>的<code>Extension</code>，在<code>+(void)load</code>方法中交换系统的<code>-(ARFrame *)currentFrame()</code>为<code>-(ARFrame *)_currentFrame()</code>方法，在<code>-(ARFrame *)_currentFrame()</code>中返回原始内容，运行后在这个方法中添加断点</p>
+<figure data-type="image" tabindex="1"><img src="https://duzexu.github.io/post-images/1595561792446.jpg" alt="" loading="lazy"></figure>
+<p>查看调用的方法为<code>-[ARSCNView _renderer:updateAtTime:]</code>,看方法名像是渲染的方法<br>
+在<code>-(ARFrame *)_currentFrame()</code>中将<code>capturedImage</code>的所有内存数据设置为0，重新运行，发现屏幕为黑屏，验证了我们的猜测</p>
+<h3 id="实践">实践</h3>
+<p>我们使用<code>GPUImage</code>来处理<code>capturedImage</code>，建立一个<code>GPUImageFilterPipeline</code>，输入为<code>GPUImageMovie</code>，用来接收<code>capturedImage</code>的<code>CVPixelBuffer</code>数据，输出为<code>GPUImageFilter</code>，用来输出处理完的数据，因为是异步处理的，所以我们添加一个<code>DispatchSemaphore</code>锁，等待<code>GPUImage</code>处理完，处理完后将数据复制回<code>capturedImage</code></p>
+<pre><code> let output = GPUImageFilter()
+ 
+ pipeline = GPUImageFilterPipeline(orderedFilters: [], input: input, output: output)
+ 
+ output.frameProcessingCompletionBlock = { [weak self] (output, time) -&gt; Void  in
+     let frameBuffer = output?.framebufferForOutput()
+     
+     guard let buffer = frameBuffer else {
+         return;
+     }
+     
+     glFinish()
+     
+     self?.rgbBuffer = buffer.getRenderTarget()?.takeUnretainedValue()
+     
+     self?.semaphore.signal()
+ }
+</code></pre>
+<p>运行后发现崩溃了，查找原因发现<code>capturedImage</code>的<code>CVPixelBuffer</code>格式是yuv的，而<code>GPUImage</code>处理完的数据为rgb的，所以我们添加<code>libyuv</code>库，把<code>GPUImage</code>处理完的rgb数据转成yuv，在复制回<code>capturedImage</code></p>
+<pre><code>CVPixelBufferLockBaseAddress(pixelBuffer, [])
+let final_y_buffer = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0)?.assumingMemoryBound(to: uint8.self);
+let final_uv_buffer = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1)?.assumingMemoryBound(to: uint8.self);
+input.processMovieFrame(pixelBuffer, withSampleTime: .zero)
+_ = semaphore.wait(timeout: .distantFuture)
+CVPixelBufferLockBaseAddress(rgbBuffer!, [])
+let width = CVPixelBufferGetWidth(rgbBuffer!)
+let height = CVPixelBufferGetHeight(rgbBuffer!)
+let rgbAddress = CVPixelBufferGetBaseAddress(rgbBuffer!)?.assumingMemoryBound(to: uint8.self)
+ARGBToNV12(rgbAddress, Int32(width*4), final_y_buffer, Int32(width), final_uv_buffer, Int32(width), Int32(width), Int32(height))
+CVPixelBufferUnlockBaseAddress(rgbBuffer!, [])
+CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+</code></pre>
+<p>这样我们就可以随意在<code>GPUImageFilterPipeline</code>添加或删除滤镜了</p>
+<p>测试后发现如果滤镜切换特别快会有随机崩溃，猜测是切换过程影响到最后的数据，修改为等待上一帧处理完再切换滤镜</p>
+<h3 id="总结">总结</h3>
+<p>本文通过比较取巧的方式实现了这个需求，有点不走寻常路。采用Unity等现成的渲染引擎会是一个相对稳妥的方案，集成也很简单（参考之前的文章 <a href="https://github.com/duzexu/Use-Unity-as-Library.git">Use Unity as Library</a>），直接给摄像机添加滤镜脚本就行了</p>
+<p>查看全部代码请点击 <a href="https://github.com/duzexu/Add-Filter-To-ARKit.git">Add Filter To ARKit</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/z-mlnAryc/" class="tag">
+                    ARKit
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/KRt25-0uKZ/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/RVnblPRY4b/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Use_Unity_as_Library/">
+                  <h3 class="post-title">
+                    将Unity以库形式集成到原生iOS
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

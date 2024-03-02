@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>在iPhone上开发微信自动跳一跳插件 | 肚肚的小窝</title>
+<meta name="description" content="Talk is cheap, Show me the code.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://duzexu.github.io/favicon.ico?v=1709367470012">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://duzexu.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154878038-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154878038-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://duzexu.github.io">
+        <img src="https://duzexu.github.io/images/avatar.png?v=1709367470012" class="site-logo">
+        <h1 class="site-title">肚肚的小窝</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/duzexu/" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Talk is cheap, Show me the code.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/duzexu/" target="_blank">duzexu</a> | <a class="rss" href="https://duzexu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">在iPhone上开发微信自动跳一跳插件</h2>
+            <div class="post-date">2020-08-17</div>
+            
+              <div class="feature-container" style="background-image: url('https://duzexu.github.io/post-images/Auto-Jump-In-WeChat-Jump.jpeg')">
+              </div>
+            
+            <div class="post-content">
+              <p>现在已有的实现方法基本是PC端利用Python来实现的，还得安装很多工具，使用起来非常不方便，这篇文章介绍如何在iOS上利用原生客户端实现自动跳一跳，方便随时使用</p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://duzexu.github.io/post-images/1597660201231.gif" alt="" loading="lazy"></figure>
+<p>完整代码详见<a href="https://github.com/duzexu/WeChatHelper">WeChatHelper</a></p>
+<h3 id="原理">原理</h3>
+<p>和PC端实现原理一致，先用系统API进行屏幕截图，利用<a href="https://github.com/opencv/opencv">OpenCV</a>分析出棋子的位置和目标块的位置，计算出距离乘以系数后得出需要按压的时间，用<a href="https://github.com/devliubo/FTFakeTouch">FTFakeTouch</a>模拟相应的按压事件就行了</p>
+<h3 id="如何进行不越狱插件开发">如何进行不越狱插件开发</h3>
+<p>关于这部分，有很多相关的框架，例如<a href="https://github.com/Naituw/IPAPatch">IPAPatch</a>或者<a href="https://github.com/AloneMonkey/MonkeyDev">MonkeyDev</a>，这里就不在过多介绍了，可以参考相应的文章或者项目简介</p>
+<h3 id="实现步骤">实现步骤</h3>
+<h5 id="1搭建环境">1.搭建环境</h5>
+<p>本例子采用的是<code>IPAPatch</code>，我们先取得微信的砸壳文件(自己砸壳或者从越狱渠道下载都行)，然后下载IPAPatch Demo工程，替换<code>Assets</code>文件夹下的app.iap为微信的iap砸壳文件，下载<code>OpenCV</code>代码编译为<code>opencv2.framework</code>添加入工程，下载<code>FTFakeTouch</code>工程编译成<code>FTFakeTouch.a</code>库添加入工程，新建<code>WeChatJumpManager</code>类添加入工程来作为我们实现相关功能的类，这样准备工作就完成了</p>
+<h5 id="2触发方法">2.触发方法</h5>
+<p>我们采用摇一摇的方式开启自动跳的功能，所以添加<code>UIWindow</code>的<code>Category</code>监听系统的摇一摇事件</p>
+<pre><code>@implementation UIWindow (Shake)
+-(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
+    if (motion == UIEventSubtypeMotionShake) {
+        //监听到摇动事件
+    }
+}
+@end
+</code></pre>
+<h5 id="3截图">3.截图</h5>
+<p>采用系统的截图方法</p>
+<pre><code>- (UIImage *)getCurrentScreenShot {
+    UIWindow *screenWindow = [UIApplication sharedApplication].keyWindow;
+    UIGraphicsBeginImageContextWithOptions(screenWindow.frame.size, NO, [UIScreen mainScreen].scale);
+    [screenWindow drawViewHierarchyInRect:screenWindow.frame afterScreenUpdates:YES];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return viewImage;
+}
+</code></pre>
+<p>用<code>UIImageToMat</code>将UIImage转成OpenCV中使用的格式<code>cv::Mat</code></p>
+<h5 id="4定位棋子的位置">4.定位棋子的位置</h5>
+<p>OpenCV的<code>matchTemplate</code>方法可以根据模板图片查找在对应的目标图片中的位置，正好符合我们的需求，我们先截取一个棋子的模板文件</p>
+<figure data-type="image" tabindex="2"><img src="https://duzexu.github.io/post-images/1597660641561.jpg" alt="" loading="lazy"></figure>
+<p>放入<code>Assert</code>文件夹下的<code>Resource</code>文件夹下，初始化相应的资源文件传入，获得棋子的位置</p>
+<pre><code>- (CvPoint)chess_Loc:(cv::Mat)res tempImage:(cv::Mat)temp result:(cv::Mat)result {
+    cv::matchTemplate(res, temp, result, CV_TM_SQDIFF);
+    double minVal,maxVal;
+    CvPoint minLoc,maxLoc,matchLoc;
+    IplImage image = IplImage(result);
+    cvMinMaxLoc(&amp;image,&amp;minVal,&amp;maxVal,&amp;minLoc,&amp;maxLoc,NULL);
+    matchLoc = minLoc; //matchLoc是最佳匹配的区域左上角点
+    chessRect = cvRect(matchLoc.x, matchLoc.y, temp.cols, temp.rows);
+    //标记出棋子的位置
+    cv::rectangle(res, cvRect(matchLoc.x, matchLoc.y, temp.cols, temp.rows), cvScalar(225,225,0));
+    return cvPoint(matchLoc.x+temp.cols*0.5,matchLoc.y+temp.rows);
+}
+</code></pre>
+<p>这步完成我们可以运行测试下，将结果转成<code>UIImage</code>存入相册看下棋子的位置是够正确</p>
+<figure data-type="image" tabindex="3"><img src="https://duzexu.github.io/post-images/1597661194726.JPG" alt="" loading="lazy"></figure>
+<h5 id="5获得下一步的位置">5.获得下一步的位置</h5>
+<p>查找下一步位置的关键就是找出下一个方块的位置，我们暂且认为方块的上尖的位置就是下一个方块的位置，关键的方法是边缘检测函数<code>Canny</code></p>
+<ul>
+<li>先用<code>cvtColor</code>将图片转化为灰度图</li>
+<li>边缘检测前用高斯模糊<code>GaussianBlur</code>处理下，方便边缘检测</li>
+<li><code>Canny</code>函数进行边缘检测</li>
+</ul>
+<p>我们注意到由于下一步的位置距离上一个位置较近时可能会影响棋子的边缘可能会影响到下一步的位置判断，所以我们根据上一步棋子的位置将它的像素改为0</p>
+<pre><code>cv::rectangle(res, chessRect, cvScalar(0), -1);
+</code></pre>
+<p>由于有效的部分是图片的中间部分，所以我们只处理高度为0.25到0.6之间的部分</p>
+<p>根据棋子的位置确定查找的范围，进行行扫描，扫描到的第一个值为255的即返回当前坐标值</p>
+<p>实验中发现椭圆形的上尖是条直线，所以我们要获取第一行连续值是255的x值的中点</p>
+<pre><code>- (CvPoint)nextStep_Loc:(cv::Mat)res chessPoint:(CvPoint)point {
+    cvtColor(res, res, CV_BGR2GRAY);
+    cv::GaussianBlur(res,res,cvSize(3,3),0);
+    cv::Canny(res, res, 3, 9);
+    cv::rectangle(res, chessRect, cvScalar(0), -1);
+    int minX = 0,maxX = 0;
+    int x = 0,y = 0;
+    if (point.x &lt; res.cols/2.0) {
+        for (int j = res.rows*0.25; j &lt; res.rows*0.6; j++) {
+            uchar* ptr = res.ptr&lt;uchar&gt;(j);
+            for (int i = res.cols/3.0; i &lt; res.cols; i++) {
+                if (ptr[i] == 255) {
+                    if (minX == 0) {
+                        minX = i;
+                    }
+                }else{
+                    if (minX != 0 &amp;&amp; maxX == 0) {
+                        maxX = i;
+                        x = (int)((maxX-minX)/2.0)+minX;
+                        y = j;
+                        return cvPoint(x, y);
+                    }
+                }
+            }
+        }
+    }else{
+        for (int j = res.rows*0.25; j &lt; res.rows*0.6; j++) {
+            uchar* ptr = res.ptr&lt;uchar&gt;(j);
+            for (int i = 0; i &lt; res.cols/3.0*2.0; i++) {
+                if (ptr[i] == 255) {
+                    if (minX == 0) {
+                        minX = i;
+                    }
+                }else{
+                    if (minX != 0 &amp;&amp; maxX == 0) {
+                        maxX = i;
+                        x = (int)((maxX-minX)/2.0)+minX;
+                        y = j;
+                        return cvPoint(x, y);
+                    }
+                }
+            }
+        }
+    }
+    return cvPoint(0, 0);
+}
+</code></pre>
+<p>用<code>circle</code>函数在我们计算出的位置上画个圈，也保存到相册，验证下结果</p>
+<figure data-type="image" tabindex="4"><img src="https://duzexu.github.io/post-images/1597661208775.JPG" alt="" loading="lazy"></figure>
+<h5 id="6计算时间">6.计算时间</h5>
+<p>根据上两部算出来的位置算出距离进而得出时间</p>
+<pre><code>- (CGFloat)timeWithImage:(UIImage *)image {
+    @autoreleasepool {
+        cv::Mat s;
+        UIImageToMat(image, s);
+        cv::Mat r = s.clone();
+        CvPoint p = [self chess_Loc:s tempImage:chess result:r];
+        CvPoint n = [self nextStep_Loc:s chessPoint:p];
+        s.release();
+        r.release();
+        if (n.x != 0&amp;&amp;n.y != 0) {
+            double distance = [self distanceBetweenPointA:p pointB:cvPoint(n.x, n.y)];
+            return distance*coefficient/1000.0;
+        }else{
+            return 0.3;
+        }
+    }
+}
+</code></pre>
+<h5 id="7操作按压">7.操作按压</h5>
+<p>随机一个屏幕下部分的点，用<code>FTFakeTouch</code>的<code>longPressAtPoint:duration:</code>实现长按</p>
+<pre><code>CGFloat x = (int)(randomRect.origin.x + (arc4random() % (int)randomRect.size.width));
+                    CGFloat y = (int)(randomRect.origin.y + (arc4random() % (int)randomRect.size.height));
+                    [[FTFakeTouch sharedInstance] longPressAtPoint:CGPointMake(x, y) duration:time];
+</code></pre>
+<p>以上就实现了整个需求，大家可以根据自己的手机大小试验出自己的系数</p>
+<p>完整代码详见<a href="https://github.com/duzexu/WeChatHelper">WeChatHelper</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://duzexu.github.io/tag/AkSdLh_FU/" class="tag">
+                    逆向
+                  </a>
+                
+                  <a href="https://duzexu.github.io/tag/RVnblPRY4b/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://duzexu.github.io/post/Record_Screen_In_Unity/">
+                  <h3 class="post-title">
+                    iOS中录制和截取Unity屏幕
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '4b8d86672021766f0933',
+        clientSecret: '7a92f6ba15717a3d5de8fb7dda58b9134cdd1757',
+        repo: 'duzexu.github.io',
+        owner: 'duzexu',
+        admin: ['duzexu'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
